@@ -22,13 +22,13 @@
 Arguments:
 * `check_server`: a server to attempt key auth access. If successful, the module will not try to redistribute they key
 * `password_file`: file containing user's password used to log into the remote server and push the key to the authorized_keys file.  Creation of this file is something you can script into the script/bootstrap script.  You should clean this file up when it is no longer needed. See example below.
-* ordering/relationship: ensure this is done before any other classes which need ssh access to servers
+* `ordering/relationship`: ensure this is done before any other classes which need ssh access to servers
 
 Users can add their configuration files in modules/people/files/[github username]/ssh_config
 
 
 ### Creating the password_file
-Typically you will want to wrap this in some kind of conditional statement to prevent it from prompting the user on every execution.  
+Add the following to the top of the script/bootstrap file along with any other local setup you need.  Do not put it at the end as boxen is expecting the output from the last command.  Typically you will want to wrap this in some kind of conditional statement to prevent it from prompting the user on every execution.  
 
 ```
 ssh -o BatchMode=yes [sameas-check_server] 'exit' > /dev/null 2>&1
@@ -39,7 +39,7 @@ if [ 0 -ne $keyauth_installed ]; then
 	read -s SSHPASS
 	echo OK
 
-	echo $SSHPASS > /tmp/mp
+	echo $SSHPASS > /tmp/mp  #password_file
 	chmod 700 /tmp/mp
 fi
 ```
