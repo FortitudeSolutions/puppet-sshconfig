@@ -5,7 +5,7 @@
 #   - create the ssh key
 #   - distribute it to all the servers in the user's sshconfig file
 
-class sshconfig ($check_server='') {
+class sshconfig ($check_server='', $password_file='') {
 
   $home_directory       = "/Users/${::boxen_user}"
   $script_copy_id       = '/usr/local/bin/ssh-copy-id'
@@ -64,7 +64,7 @@ class sshconfig ($check_server='') {
 #########################
 
   exec { 'distribute':
-    command => "${tmpscript_distribute} /tmp/mp",
+    command => "${tmpscript_distribute} ${password_file}",
     require => File[$tmpscript_distribute],
     unless  => "ssh -o BatchMode ${check_server}"
   }
