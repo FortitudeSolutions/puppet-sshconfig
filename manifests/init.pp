@@ -5,38 +5,23 @@
 #   - create the ssh key
 #   - distribute it to all the servers in the user's sshconfig file
 
-class sshconfig {
+class sshconfig ($check_server='') {
 
-  $home_directory = "/Users/${::boxen_user}"
-  $script_copy_id = "/usr/local/bin/ssh-copy-id"
-  $tmpscript_distribute = "/tmp/distribute_ssh_keys"
-  $tarball = 'puppet:///modules/sshconfig/sshpass-1.05.tar.gz'
-  $sshpass_archive = '/tmp/sshpass-1.05.tar.gz'
+  $home_directory       = "/Users/${::boxen_user}"
+  $script_copy_id       = '/usr/local/bin/ssh-copy-id'
+  $tmpscript_distribute = '/tmp/distribute_ssh_keys'
+  $sshpass              = '/usr/local/bin/sshpass'
 
 
 #########################
 # INSTALL SSHPASS
 #########################
-  file { $sshpass_archive:
-  	source => $tarball,
-  	mode   => '755',
-  }
-
-  exec { 'extract_sshpass':
-  	command => "/usr/bin/tar -xzf ${sshpass_archive} -C /tmp",
-  	require => File[$sshpass_archive],
-  }
-
-  exec { 'configure_sshpass':
-    command => 'cd /tmp/sshpass-1.05 && ./configure',
-    require => Exec['extract_sshpass'],
-  }
-
-  exec { 'install_sshpass':
-    command => 'cd /tmp/sshpass-1.05 && make install',
-    require => Exec['configure_sshpass'],
-    user    => 'root',
-    before  => Exec['distribute'],
+  file { $sshpass:
+    ensure => 'present',
+    source => 'puppet:///modules/sshconfig/sshpass',
+    mode   => '755',
+    owner  => 'root',
+    group  => 'wheel',
   }
 
 #########################
@@ -44,12 +29,12 @@ class sshconfig {
 #########################
 
   file { "${home_directory}/.ssh":
-    ensure => 'directory'
+    ensure => 'directory',
   }
 
   # install the user's ssh config file
   file { "${home_directory}/.ssh/config":
-    source => "puppet:///modules/people/${::github_login}/ssh_config",
+    source  => "puppet:///modules/people/${::github_login}/ssh_config",
     require => File["${home_directory}/.ssh"],
   }
 
@@ -63,15 +48,15 @@ class sshconfig {
 #########################
 
   file { $script_copy_id:
-  	owner    => 'root',
-  	group    => 'wheel',
-  	mode     => '755',
-  	source   => 'puppet:///modules/sshconfig/ssh-copy-id',
+    owner    => 'root',
+    group    => 'wheel',
+    mode     => '755',
+    source   => 'puppet:///modules/sshconfig/ssh-copy-id',
   }
 
   file { $tmpscript_distribute:
-  	source   => 'puppet:///modules/sshconfig/distribute_ssh_keys',
-  	mode     => '755',
+    source   => 'puppet:///modules/sshconfig/distribute_ssh_keys',
+    mode     => '755',
   }
 
 #########################
@@ -79,8 +64,9 @@ class sshconfig {
 #########################
 
   exec { 'distribute':
-    command => "$tmpscript_distribute /tmp/mp",
-    require => File[$tmpscript_distribute] , 
+    command => "${tmpscript_distribute} /tmp/mp",
+    require => File[$tmpscript_distribute],
+    unless  => "ssh -o BatchMode ${check_server}"
   }
 
 }
