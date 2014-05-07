@@ -42,4 +42,4 @@ if [ "" == "${SSHPASS}" ]; then
 	export SSHPASS
 fi
 
-/usr/local/bin/sshpass -e ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $server "mkdir -p ~/.ssh && echo \"${pubkey}\" >> ~/.ssh/authorized_keys"
+/usr/local/bin/sshpass -e ssh -o StrictHostKeyChecking=no $server "mkdir -p ~/.ssh && echo \"${pubkey}\" >> ~/.ssh/authorized_keys"

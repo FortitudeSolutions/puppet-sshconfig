@@ -22,6 +22,7 @@ class sshconfig ($check_server='', $password_file='') {
     mode   => '755',
     owner  => 'root',
     group  => 'wheel',
+    backup => false,
   }
 
 #########################
@@ -48,15 +49,19 @@ class sshconfig ($check_server='', $password_file='') {
 #########################
 
   file { $script_copy_id:
+    ensure   => 'present',
     owner    => 'root',
     group    => 'wheel',
     mode     => '755',
     source   => 'puppet:///modules/sshconfig/ssh-copy-id',
+    backup   => false,
   }
 
   file { $tmpscript_distribute:
+    ensure   => 'present',
     source   => 'puppet:///modules/sshconfig/distribute_ssh_keys',
     mode     => '755',
+    backup   => false,
   }
 
 #########################
@@ -65,8 +70,7 @@ class sshconfig ($check_server='', $password_file='') {
 
   exec { 'distribute':
     command => "${tmpscript_distribute} ${password_file}",
-    require => File[$tmpscript_distribute],
-    unless  => "ssh -o BatchMode ${check_server}"
+    unless  => "ssh -o BatchMode=yes ${check_server}"
   }
 
 }
