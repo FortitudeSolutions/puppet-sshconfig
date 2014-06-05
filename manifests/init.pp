@@ -76,7 +76,7 @@ class sshconfig ($check_server='', $password_file='') {
   exec { 'distribute':
     command => "${tmpscript_distribute} ${password_file}",
     unless  => "ssh -o BatchMode=yes ${check_server}",
-    require => File["${sshpass}"]
+    require => [File["${sshpass}"],File["${script_copy_id}"],File["$tmpscript_distribute"]]
   }
 
 }

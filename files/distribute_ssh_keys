@@ -1,11 +1,13 @@
 
 export SSHPASS=`cat ${1}`
 # use config file to get serverlist
-serverlist=`cat ~/.ssh/config | grep '^Host ' | sed -e 's/Host //'`
+serverlist=`cat ~/.ssh/config | grep '^Host ' | sed -e 's/Host //' | sed -e 's/\*//'`
+echo "puppet-sshconfig got the following list of servers to copy your key to:\n $serverlist" > /tmp/sshconfig.log
 
 for server in $serverlist
 do
-  echo "Adding your key to $server"
+
+  echo "Adding your key to $server" >> /tmp/sshconfig.log
   /usr/local/bin/ssh-copy-id $server
 
   if [ 0 -ne $? ]; then
