@@ -16,13 +16,18 @@ class sshconfig ($check_server='', $password_file='') {
 #########################
 # INSTALL SSHPASS
 #########################
+  file { '/usr/local/bin':
+    ensure => 'directory'
+  }
+
   file { $sshpass:
-    ensure => 'present',
-    source => 'puppet:///modules/sshconfig/sshpass',
-    mode   => '755',
-    owner  => 'root',
-    group  => 'wheel',
-    backup => false,
+    ensure  => 'present',
+    source  => 'puppet:///modules/sshconfig/sshpass',
+    mode    => '0755',
+    owner   => 'root',
+    group   => 'wheel',
+    backup  => false,
+    require => File['/usr/local/bin']
   }
 
 #########################
@@ -52,7 +57,7 @@ class sshconfig ($check_server='', $password_file='') {
     ensure   => 'present',
     owner    => 'root',
     group    => 'wheel',
-    mode     => '755',
+    mode     => '0755',
     source   => 'puppet:///modules/sshconfig/ssh-copy-id',
     backup   => false,
   }
@@ -60,7 +65,7 @@ class sshconfig ($check_server='', $password_file='') {
   file { $tmpscript_distribute:
     ensure   => 'present',
     source   => 'puppet:///modules/sshconfig/distribute_ssh_keys',
-    mode     => '755',
+    mode     => '0755',
     backup   => false,
   }
 
